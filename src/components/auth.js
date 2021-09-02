@@ -5,7 +5,6 @@ import {useCookies} from 'react-cookie';
 function Auth(){
 
     const [username,setUsername] = useState('');
-    const [email,setEmail] = useState('');
     const [password,setPassword] = useState('');
     const [token,setToken] = useCookies(['auth-token'])
     const [isLoginView,setIsLoginView] = useState(true)
@@ -15,15 +14,20 @@ function Auth(){
         if (token['auth-token']) window.location.href = '/home'
     },[token])
 
-    const loginClicked = ()=>{
-        API.loginUser({username,email,password})
+    const loginClicked = (res)=>{
+        API.loginUser({name:username,password})
         .then(resp => setToken('auth-token', resp.token))
         .catch(error => console.log(error))
     }
 
     const registerClicked = () => {
-        API.registerUser({username,email,password})
-        .then(() => loginClicked())
+        API.registerUser({name:username,password})
+        .then(resp => loginClicked(resp))
+        .catch(error => console.log(error) )
+    }
+    const fetchAllUsers=  () => {
+        API.allUsers()
+        .then(resp => resp)
         .catch(error => console.log(error) )
     }
 
@@ -39,10 +43,7 @@ function Auth(){
                 <input id='username' type='text' placeholder='username' value={username}
                     onChange = {evt => setUsername(evt.target.value)}
                 /><br/>
-                <label htmlFor='email'> Email </label><br/>
-                <input id='email' type='email' placeholder='email' value={email}
-                    onChange = {evt => setEmail(evt.target.value)}
-                /><br/>
+     
                 <label htmlFor='password' >Password</label>
                 <input id='password' type="password"
                     placeholder='password'
@@ -57,6 +58,8 @@ function Auth(){
                     <p onClick={()=>setIsLoginView(false)}> You don't have an account? Register here</p>:
                     <p onClick={()=>setIsLoginView(true)}> You already have an account? Login here</p>
                 }
+                <button onClick = {fetchAllUsers} >Fetch Users</button>:
+
             </div>
         </div>
     )
